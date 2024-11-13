@@ -1,5 +1,6 @@
 /Users/hypermed-mb3/Desktop/OCS/Chatop/src/main/java/com/chatop/ChatopApplication.java
 /Users/hypermed-mb3/Desktop/OCS/Chatop/src/main/java/com/chatop/configuration/SpringSecurityConfig.java
+/Users/hypermed-mb3/Desktop/OCS/Chatop/src/main/java/com/chatop/configuration/WebConfig.java
 /Users/hypermed-mb3/Desktop/OCS/Chatop/src/main/java/com/chatop/controllers/LoginController.java
 /Users/hypermed-mb3/Desktop/OCS/Chatop/src/main/java/com/chatop/controllers/RentalController.java
 /Users/hypermed-mb3/Desktop/OCS/Chatop/src/main/java/com/chatop/controllers/UserController.java
@@ -10,3 +11,5 @@
 /Users/hypermed-mb3/Desktop/OCS/Chatop/src/main/java/com/chatop/repositories/RentalRepository.java
 /Users/hypermed-mb3/Desktop/OCS/Chatop/src/main/java/com/chatop/repositories/UserRepository.java
 /Users/hypermed-mb3/Desktop/OCS/Chatop/src/main/java/com/chatop/services/RentalService.java
+/Users/hypermed-mb3/Desktop/OCS/Chatop/src/main/java/com/chatop/services/UserService.java
+/Users/hypermed-mb3/Desktop/OCS/Chatop/src/main/java/utils/JwtUtils.java
