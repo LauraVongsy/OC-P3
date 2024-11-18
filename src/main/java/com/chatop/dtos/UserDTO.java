@@ -1,18 +1,9 @@
 package com.chatop.dtos;
 
 public class UserDTO {
-    private String login;
     private String email;
     private String name;
     private String password;
-
-    public String getLogin() {
-        return login;
-    }
-
-    public void setLogin(String login) {
-        this.login = login;
-    }
 
     public String getEmail() {
         return email;
@@ -30,7 +21,7 @@ public class UserDTO {
         this.name = name;
     }
 
-    public String getPassword(){
+    public String getPassword() {
         return password;
     }
 

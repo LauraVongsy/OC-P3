@@ -59,7 +59,7 @@ public class UserService implements UserDetailsService {
     }
 
     public String login(UserDTO userDTO) {
-        Optional<Users> userOptional = userRepository.findByEmail(userDTO.getLogin());
+        Optional<Users> userOptional = userRepository.findByEmail(userDTO.getEmail());
 
         if (userOptional.isPresent()) {
             Users user = userOptional.get();
@@ -67,7 +67,7 @@ public class UserService implements UserDetailsService {
             // Vérifier si le mot de passe est correct
             if (passwordEncoder.matches(userDTO.getPassword(), user.getPassword())) {
                 // Si le mot de passe est correct, retourner un jeton ou un message de succès
-                return jwtService.generateToken(userDTO.getLogin());
+                return jwtService.generateToken(userDTO.getEmail());
             } else {
                 return "Mot de passe incorrect";
             }
