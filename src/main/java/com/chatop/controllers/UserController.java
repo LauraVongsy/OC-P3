@@ -19,11 +19,11 @@ public class UserController {
     // Endpoint pour l'enregistrement
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> register(@RequestBody UserDTO userDTO) {
-        String message = userService.register(userDTO);
-        if (message.equals("Utilisateur enregistré avec succès")) {
-            return ResponseEntity.ok(Map.of("message", message));
+        String token = userService.register(userDTO);
+        if (token != null) {
+            return ResponseEntity.ok(Map.of("token", token));
         } else {
-            return ResponseEntity.status(400).body(Map.of("error", message));
+            return ResponseEntity.status(400).body(Map.of("error", "register failed"));
         }
     }
 
