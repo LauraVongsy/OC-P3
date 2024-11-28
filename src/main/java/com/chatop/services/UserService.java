@@ -53,9 +53,8 @@ public class UserService implements UserDetailsService {
         user.setName(userDTO.getName());
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 
-
         userRepository.save(user);
-        return "Utilisateur enregistré avec succès";
+        return jwtService.generateToken(userDTO.getEmail());
     }
 
     public String login(UserDTO userDTO) {
