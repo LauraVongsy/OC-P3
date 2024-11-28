@@ -33,7 +33,7 @@ public class JwtService {
         Map<String, Object> claims = new HashMap<>();
         claims.put("sub", userName);
         //Build JWT Token with claims, issued time, expiration time and signIn key
-        return Jwts.builder().setClaims(claims).setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 3)).signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
+        return Jwts.builder().setClaims(claims).setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)).signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
     }
 
     /**
