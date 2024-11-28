@@ -1,8 +1,9 @@
 package com.chatop.models;
 
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import java.math.BigDecimal;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -17,10 +18,10 @@ public class Rentals {
     private String name;
 
     @Column(nullable = false)
-    private BigDecimal surface;
+    private Integer surface;
 
     @Column(nullable = false)
-    private BigDecimal price;
+    private Integer price;
 
     @Column(length = 255)
     private String picture;
@@ -39,9 +40,10 @@ public class Rentals {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "rental", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Message> messages;
 
-    public Rentals(){
+    public Rentals() {
         //constructeur vide requis par JPA
     }
 
@@ -52,6 +54,7 @@ public class Rentals {
     public void setId(Integer id) {
         this.id = id;
     }
+
     public String getName() {
         return name;
     }
@@ -59,32 +62,39 @@ public class Rentals {
     public void setName(String name) {
         this.name = name;
     }
-    public BigDecimal getSurface() {
+
+    public Integer getSurface() {
         return surface;
     }
 
-    public void setSurface(BigDecimal surface) {
+    public void setSurface(Integer surface) {
         this.surface = surface;
     }
-    public BigDecimal getPrice() {
+
+    public Integer getPrice() {
         return price;
     }
 
-    public void setPrice(BigDecimal price) {
+    public void setPrice(Integer price) {
         this.price = price;
     }
-    public String getPicture(){
+
+    public String getPicture() {
         return picture;
     }
-    public void setPicture( String picture){
-        this.picture= picture;
+
+    public void setPicture(String picture) {
+        this.picture = picture;
     }
-    public String getDescription(){
+
+    public String getDescription() {
         return description;
     }
-    public void setDescription( String description){
+
+    public void setDescription(String description) {
         this.description = description;
     }
+
     public Users getOwner() {
         return owner;
     }

@@ -1,6 +1,8 @@
 package com.chatop.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -13,6 +15,7 @@ public class Message {
 
     @ManyToOne
     @JoinColumn(name = "rental_id", nullable = false)
+    @JsonBackReference
     private Rentals rental;
 
     @ManyToOne
@@ -28,7 +31,8 @@ public class Message {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public Message (){}
+    public Message() {
+    }
 
     public Integer getId() {
         return id;
