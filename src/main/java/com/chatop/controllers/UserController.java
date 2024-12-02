@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api")
 public class UserController {
     @Autowired
     private UserService userService;
 
     // Endpoint pour l'enregistrement
-    @PostMapping("/register")
+    @PostMapping("auth/register")
     public ResponseEntity<Map<String, String>> register(@RequestBody UserDTO userDTO) {
         String token = userService.register(userDTO);
         if (token != null) {
@@ -27,7 +27,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/login")
+    @PostMapping("auth/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody UserDTO userDTO) {
         String token = userService.login(userDTO);
 
@@ -41,10 +41,16 @@ public class UserController {
 
     // Endpoint pour obtenir les informations de l'utilisateur connecté
     @CrossOrigin(origins = "http://localhost:4200")
-    @GetMapping("/me")
+    @GetMapping("auth/me")
     public ResponseEntity<Users> getUserDetails(Authentication authentication) {
         String email = authentication.getName();  // Récupère l'email de l'utilisateur connecté
         Users user = userService.findByEmail(email);
+        return ResponseEntity.ok(user);
+    }
+
+    @GetMapping("user/{id}")
+    public ResponseEntity<Users> getUserById(@PathVariable Integer id) {
+        Users user = userService.findById(id);
         return ResponseEntity.ok(user);
     }
 }

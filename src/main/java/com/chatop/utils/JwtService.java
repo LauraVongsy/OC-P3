@@ -28,10 +28,11 @@ public class JwtService {
      * @param userName Username (here email is used as userName)
      * @return A built JWT token
      */
-    public String generateToken(String userName) {
+    public String generateToken(String userName, Integer userId) {
         //Prepare claims for the token
         Map<String, Object> claims = new HashMap<>();
         claims.put("sub", userName);
+        claims.put("userId", userId);
         //Build JWT Token with claims, issued time, expiration time and signIn key
         return Jwts.builder().setClaims(claims).setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)).signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
     }
@@ -44,6 +45,10 @@ public class JwtService {
     private Key getSignKey() {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public Integer extractUserId(String token) {
+        return extractClaim(token, claims -> claims.get("userId", Integer.class));
     }
 
     public String extractUserName(String token) {

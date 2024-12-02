@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -44,11 +45,15 @@ public class SpringSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
-                //Disable CSRF protection
+                .cors(Customizer.withDefaults())
+                //Disable CSRF protection because we use jwt token
                 .csrf(csrf -> csrf.disable())
                 //Set the public and authentication routes
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/register", "/api/auth/login").permitAll().anyRequest().authenticated())
-                //Set session management to stateless
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                        .requestMatchers("/uploads/**").permitAll()
+                        .anyRequest().authenticated())
+                //Set session management to stateless (the server doesn't keep a session in between requests because we use jwt)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 //Register the authentication provider
                 .authenticationProvider(authenticationProvider())
@@ -59,6 +64,7 @@ public class SpringSecurityConfig {
 
     /**
      * Creates a DaoAuthenticationProvider to handle user authentication
+     * DaoAuthenticationProvider provides authentication based on a database containing users infos
      */
     @Bean
     public AuthenticationProvider authenticationProvider() {
@@ -70,8 +76,6 @@ public class SpringSecurityConfig {
 
     /**
      * Defines a PasswordEncoder bean that uses Bcrypt hashing by default for password encoding
-     *
-     * @return
      */
     @Bean
     PasswordEncoder passwordEncoder() {

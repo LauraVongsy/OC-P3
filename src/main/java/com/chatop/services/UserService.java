@@ -1,6 +1,7 @@
 package com.chatop.services;
 
 import com.chatop.dtos.UserDTO;
+import com.chatop.exceptions.NotFoundException;
 import com.chatop.models.UserPrincipal;
 import com.chatop.models.Users;
 import com.chatop.repositories.UserRepository;
@@ -54,7 +55,7 @@ public class UserService implements UserDetailsService {
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 
         userRepository.save(user);
-        return jwtService.generateToken(userDTO.getEmail());
+        return jwtService.generateToken(userDTO.getEmail(), user.getId());
     }
 
     public String login(UserDTO userDTO) {
@@ -66,7 +67,7 @@ public class UserService implements UserDetailsService {
             // Vérifier si le mot de passe est correct
             if (passwordEncoder.matches(userDTO.getPassword(), user.getPassword())) {
                 // Si le mot de passe est correct, retourner un jeton ou un message de succès
-                return jwtService.generateToken(userDTO.getEmail());
+                return jwtService.generateToken(userDTO.getEmail(), user.getId());
             } else {
                 return "Mot de passe incorrect";
             }
@@ -78,6 +79,10 @@ public class UserService implements UserDetailsService {
     public Users findByEmail(String email) {
         Optional<Users> userOptional = userRepository.findByEmail(email);
         return userOptional.orElse(null);
+    }
+
+    public Users findById(Integer id) {
+        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User with id " + id + " not found!"));
     }
 }
 
