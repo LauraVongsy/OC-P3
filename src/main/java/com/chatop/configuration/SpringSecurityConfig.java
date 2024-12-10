@@ -50,7 +50,7 @@ public class SpringSecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 //Set the public and authentication routes
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/register", "/api/auth/login", "/uploads/rentals/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/api/auth/register", "/api/auth/login", "/uploads/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated())
                 //Set session management to stateless (the server doesn't keep a session in between requests because we use jwt)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
