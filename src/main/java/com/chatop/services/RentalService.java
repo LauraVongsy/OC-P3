@@ -51,13 +51,31 @@ public class RentalService {
         rental.setName(rentalDTO.getName());
         rental.setSurface(rentalDTO.getSurface());
         rental.setPrice(rentalDTO.getPrice());
+
         rental.setDescription(rentalDTO.getDescription());
         rental.setOwner(user);
         rental.setCreatedAt(LocalDateTime.now());
 
         if (file != null && !file.isEmpty()) {
             try {
-                // Define the local folder path to store the file
+                // Define the storage path under resources/static/uploads/rentals
+                Path directoryPath = Paths.get("src/main/resources/static/uploads/rentals");
+                if (!Files.exists(directoryPath)) {
+                    Files.createDirectories(directoryPath); // Create the directory if it doesn't exist
+                }
+
+                // Generate a unique file name for the uploaded file
+                String imageFileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+                Path imagePath = directoryPath.resolve(imageFileName);
+
+                // Save the file to the specified path
+                Files.copy(file.getInputStream(), imagePath);
+
+                // Set the relative path for the image in the Rentals object
+                String relativePath = "uploads/rentals/" + imageFileName;
+                rental.setPicture(relativePath);
+
+              /*  // Define the local folder path to store the file
                 // Use an absolute path relative to the current working directory
                 String uploadDirectory = "uploads/rentals/";
                 Path path = Paths.get(uploadDirectory).toAbsolutePath();
@@ -66,20 +84,14 @@ public class RentalService {
                 if (!Files.exists(path)) {
                     Files.createDirectories(path);
                 }
-
-                // Generate a unique file name to avoid collisions
                 String fileExtension = getFileExtension(file.getOriginalFilename());
                 String uniqueFileName = UUID.randomUUID() + "." + fileExtension;
-
-                // Path where the file will be stored
                 Path filePath = path.resolve(uniqueFileName);
 
-                // Save the file locally
                 file.transferTo(filePath.toFile());
+                String relativePath = uploadDirectory + uniqueFileName;
 
-                // Set the relative file path in the Rentals object (URL path to file)
-                rental.setPicture(uploadDirectory + uniqueFileName);
-
+                rental.setPicture(relativePath); // Utiliser le chemin relatif ici*/
             } catch (Exception e) {
                 throw new RuntimeException("Failed to store file", e);
             }
@@ -93,7 +105,7 @@ public class RentalService {
         return (dotIndex > 0) ? fileName.substring(dotIndex + 1) : "";
     }
 
-    public RentalDTO updateRental(Integer id, RentalDTO rentalDTO, Integer userId) {
+    public Rentals updateRental(Integer id, RentalDTO rentalDTO, MultipartFile file, Integer userId) {
         logger.info("Starting updateRental process for Rental ID: " + id + " by User ID: " + userId);
 
         Rentals existingRental = rentalRepository.findById(id)
@@ -108,24 +120,47 @@ public class RentalService {
         existingRental.setName(rentalDTO.getName());
         existingRental.setSurface(rentalDTO.getSurface());
         existingRental.setPrice(rentalDTO.getPrice());
-
         existingRental.setDescription(rentalDTO.getDescription());
         existingRental.setUpdatedAt(LocalDateTime.now());
+
+        // Vérifier et gérer l'upload de l'image si elle est présente
+        if (file != null && !file.isEmpty()) {
+            try {
+                String uploadDirectory = "uploads/rentals/";
+                Path path = Paths.get(uploadDirectory).toAbsolutePath();
+
+                if (!Files.exists(path)) {
+                    Files.createDirectories(path);
+                }
+
+                String fileExtension = getFileExtension(file.getOriginalFilename());
+                String uniqueFileName = UUID.randomUUID() + "." + fileExtension;
+                Path filePath = path.resolve(uniqueFileName);
+
+                file.transferTo(filePath.toFile());
+                String relativePath = uploadDirectory + uniqueFileName;
+
+                existingRental.setPicture(relativePath); // Mettre à jour avec le nouveau chemin
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to store file", e);
+            }
+        }
 
         // Sauvegarder le rental mis à jour
         Rentals updatedRental = rentalRepository.save(existingRental);
 
+        return new Rentals();
         // Retourner un RentalDTO
-        return new RentalDTO(
+      /*  return new RentalDTO(
                 updatedRental.getId(),
                 updatedRental.getName(),
                 updatedRental.getSurface(),
                 updatedRental.getPrice(),
+                updatedRental.getPicture(),
                 updatedRental.getDescription(),
                 updatedRental.getOwner().getId(),
                 updatedRental.getCreatedAt(),
                 updatedRental.getUpdatedAt()
-        );
+        );*/
     }
-
 }

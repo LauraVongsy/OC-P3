@@ -42,10 +42,12 @@ public class RentalController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Rentals> createRental(@ModelAttribute RentalDTO rentalDTO, @RequestPart("picture") MultipartFile file, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<Rentals> createRental(@ModelAttribute RentalDTO rentalDTO, @RequestPart(value = "picture", required = false) MultipartFile file, @RequestHeader("Authorization") String token) {
+        System.out.println(file);
         Rentals rental = rentalService.createRental(rentalDTO, file, token);
         return ResponseEntity.ok(rental);
     }
+
 
     private Users getCurrentUser() {
         // Implémentez la logique pour obtenir l'utilisateur authentifié ici.
@@ -53,12 +55,13 @@ public class RentalController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<RentalDTO> updateRental(
+    public ResponseEntity<Rentals> updateRental(
             @PathVariable Integer id,
             @RequestBody RentalDTO rentalDTO,
+            @RequestPart(value = "picture", required = false) MultipartFile file,
             @RequestHeader("UserId") Integer userId // Par exemple, récupéré dans l'en-tête de la requête
     ) {
-        RentalDTO updatedRental = rentalService.updateRental(id, rentalDTO, userId);
+        Rentals updatedRental = rentalService.updateRental(id, rentalDTO, file, userId);
         return ResponseEntity.ok(updatedRental);
     }
 }
