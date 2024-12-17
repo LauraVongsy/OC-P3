@@ -1,7 +1,9 @@
 package com.chatop.services;
 
-import com.chatop.dtos.UserDTO;
+import com.chatop.dtos.UserRequestDTO;
+import com.chatop.dtos.UserResponseDTO;
 import com.chatop.exceptions.NotFoundException;
+import com.chatop.mapper.UsersMapper;
 import com.chatop.models.UserPrincipal;
 import com.chatop.models.Users;
 import com.chatop.repositories.UserRepository;
@@ -29,6 +31,9 @@ public class UserService implements UserDetailsService {
     @Autowired
     private JwtService jwtService;
 
+    @Autowired
+    private UsersMapper usersMapper;
+
     /**
      * Method used within Spring Security to retrieve user details from the database using email.
      * If user exists, returns the details wrapped in a UserPrincipal object for Spring Security authentication process.
@@ -43,7 +48,7 @@ public class UserService implements UserDetailsService {
         return user.map(UserPrincipal::new).orElseThrow(() -> new UsernameNotFoundException("User email not found " + email));
     }
 
-    public String register(UserDTO userDTO) {
+    public String register(UserRequestDTO userDTO) {
 
         if (userRepository.findByEmail(userDTO.getEmail()).isPresent()) {
             return "Cet email est déjà utilisé";
@@ -58,7 +63,7 @@ public class UserService implements UserDetailsService {
         return jwtService.generateToken(userDTO.getEmail(), user.getId());
     }
 
-    public String login(UserDTO userDTO) {
+    public String login(UserRequestDTO userDTO) {
         Optional<Users> userOptional = userRepository.findByEmail(userDTO.getEmail());
 
         if (userOptional.isPresent()) {
@@ -76,13 +81,16 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    public Users findByEmail(String email) {
-        Optional<Users> userOptional = userRepository.findByEmail(email);
-        return userOptional.orElse(null);
+    public UserResponseDTO findByEmail(String email) {
+        Users user = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("User not found"));
+        System.out.println(user.getId());
+        return usersMapper.toResponseDTO(user);
+
     }
 
-    public Users findById(Integer id) {
-        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User with id " + id + " not found!"));
+    public UserResponseDTO findById(Integer id) {
+        Users user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User with id " + id + " not found!"));
+        return usersMapper.toResponseDTO(user);
     }
 }
 

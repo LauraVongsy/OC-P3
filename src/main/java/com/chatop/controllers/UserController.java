@@ -1,7 +1,7 @@
 package com.chatop.controllers;
 
-import com.chatop.dtos.UserDTO;
-import com.chatop.models.Users;
+import com.chatop.dtos.UserRequestDTO;
+import com.chatop.dtos.UserResponseDTO;
 import com.chatop.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,7 @@ public class UserController {
 
     // Endpoint pour l'enregistrement
     @PostMapping("auth/register")
-    public ResponseEntity<Map<String, String>> register(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<Map<String, String>> register(@RequestBody UserRequestDTO userDTO) {
         String token = userService.register(userDTO);
         if (token != null) {
             return ResponseEntity.ok(Map.of("token", token));
@@ -28,7 +28,7 @@ public class UserController {
     }
 
     @PostMapping("auth/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<Map<String, String>> login(@RequestBody UserRequestDTO userDTO) {
         String token = userService.login(userDTO);
 
         if (token != null) {
@@ -42,15 +42,15 @@ public class UserController {
     // Endpoint pour obtenir les informations de l'utilisateur connecté
     @CrossOrigin(origins = "http://localhost:4200")
     @GetMapping("auth/me")
-    public ResponseEntity<Users> getUserDetails(Authentication authentication) {
+    public ResponseEntity<UserResponseDTO> getUserDetails(Authentication authentication) {
         String email = authentication.getName();  // Récupère l'email de l'utilisateur connecté
-        Users user = userService.findByEmail(email);
+        UserResponseDTO user = userService.findByEmail(email);
         return ResponseEntity.ok(user);
     }
 
     @GetMapping("user/{id}")
-    public ResponseEntity<Users> getUserById(@PathVariable Integer id) {
-        Users user = userService.findById(id);
+    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Integer id) {
+        UserResponseDTO user = userService.findById(id);
         return ResponseEntity.ok(user);
     }
 }
