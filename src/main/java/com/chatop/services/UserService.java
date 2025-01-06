@@ -92,6 +92,7 @@ public class UserService implements UserDetailsService {
         Users user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User with id " + id + " not found!"));
         return usersMapper.toResponseDTO(user);
     }
+
 }
 
 

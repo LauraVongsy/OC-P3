@@ -1,14 +1,18 @@
 package com.chatop.services;
 
-import com.chatop.dtos.RentalDTO;
+import com.chatop.dtos.RentalRequestDTO;
+import com.chatop.dtos.RentalResponseDTO;
 import com.chatop.exceptions.NotFoundException;
 import com.chatop.exceptions.UnauthorizedException;
+import com.chatop.mapper.RentalsMapper;
 import com.chatop.models.Rentals;
 import com.chatop.models.Users;
 import com.chatop.repositories.RentalRepository;
 import com.chatop.repositories.UserRepository;
 import com.chatop.utils.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,7 +21,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 import java.util.logging.Logger;
 
 @Service
@@ -30,31 +33,32 @@ public class RentalService {
     private UserRepository userRepository;
     @Autowired
     private JwtService jwtService;
+    @Autowired
+    private RentalsMapper rentalsMapper;
 
-    public List<Rentals> findAll() {
-        return rentalRepository.findAll();
+    public List<RentalResponseDTO> findAll() {
+        List<Rentals> rentals = rentalRepository.findAll();
+        return rentalsMapper.toResponseDTOList(rentals);
     }
 
-    public Rentals findById(Integer id) {
-        return rentalRepository.findById(id).orElseThrow(
+    public RentalResponseDTO findById(Integer id) {
+        Rentals rental = rentalRepository.findById(id).orElseThrow(
                 () -> new NotFoundException("Rental with id " + id + " not found")
         );
+
+        return rentalsMapper.toResponseDTO(rental);
     }
 
-    public Rentals createRental(RentalDTO rentalDTO, MultipartFile file, String token) {
-        //TODO: store the file in a specific folder
-        //TODO: store the relative path to the file and add this to the Rentals object before saving
-        Integer userId = this.jwtService.extractUserId(token.substring(7));
+    public RentalResponseDTO createRental(RentalRequestDTO rentalRequestDTO, MultipartFile file) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String token = (String) authentication.getCredentials();
+        Integer userId = this.jwtService.extractUserId(token);
         Users user = this.userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found!"));
 
-        Rentals rental = new Rentals();
-        rental.setName(rentalDTO.getName());
-        rental.setSurface(rentalDTO.getSurface());
-        rental.setPrice(rentalDTO.getPrice());
+        Rentals rental = rentalsMapper.toEntity(rentalRequestDTO);
 
-        rental.setDescription(rentalDTO.getDescription());
         rental.setOwner(user);
-        rental.setCreatedAt(LocalDateTime.now());
+        rental.setCreated_at(LocalDateTime.now());
 
         if (file != null && !file.isEmpty()) {
             try {
@@ -75,29 +79,12 @@ public class RentalService {
                 String relativePath = "uploads/rentals/" + imageFileName;
                 rental.setPicture(relativePath);
 
-              /*  // Define the local folder path to store the file
-                // Use an absolute path relative to the current working directory
-                String uploadDirectory = "uploads/rentals/";
-                Path path = Paths.get(uploadDirectory).toAbsolutePath();
-
-                // Create the folder if it doesn't exist
-                if (!Files.exists(path)) {
-                    Files.createDirectories(path);
-                }
-                String fileExtension = getFileExtension(file.getOriginalFilename());
-                String uniqueFileName = UUID.randomUUID() + "." + fileExtension;
-                Path filePath = path.resolve(uniqueFileName);
-
-                file.transferTo(filePath.toFile());
-                String relativePath = uploadDirectory + uniqueFileName;
-
-                rental.setPicture(relativePath); // Utiliser le chemin relatif ici*/
             } catch (Exception e) {
                 throw new RuntimeException("Failed to store file", e);
             }
         }
 
-        return rentalRepository.save(rental);
+        return rentalsMapper.toResponseDTO(rentalRepository.save(rental));
     }
 
     private String getFileExtension(String fileName) {
@@ -105,62 +92,28 @@ public class RentalService {
         return (dotIndex > 0) ? fileName.substring(dotIndex + 1) : "";
     }
 
-    public Rentals updateRental(Integer id, RentalDTO rentalDTO, MultipartFile file, Integer userId) {
-        logger.info("Starting updateRental process for Rental ID: " + id + " by User ID: " + userId);
+    public RentalResponseDTO updateRental(Integer id, RentalRequestDTO rentalRequestDTO) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("Authentication  : " + authentication);
+
+        String token = (String) authentication.getCredentials();
+        System.out.println("Token extrait du contexte de sécurité : " + token);
+        Integer userId = this.jwtService.extractUserId(token);
+        System.out.println("ID utilisateur extrait : " + userId);
 
         Rentals existingRental = rentalRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Rental with id " + id + " not found"));
 
-        // Vérifier si l'utilisateur est bien le propriétaire du rental
         if (!existingRental.getOwner().getId().equals(userId)) {
             throw new UnauthorizedException("You are not allowed to modify this rental.");
         }
 
-        // Mettre à jour les champs
-        existingRental.setName(rentalDTO.getName());
-        existingRental.setSurface(rentalDTO.getSurface());
-        existingRental.setPrice(rentalDTO.getPrice());
-        existingRental.setDescription(rentalDTO.getDescription());
-        existingRental.setUpdatedAt(LocalDateTime.now());
+        rentalsMapper.updateEntityFromDTO(rentalRequestDTO, existingRental);
 
-        // Vérifier et gérer l'upload de l'image si elle est présente
-        if (file != null && !file.isEmpty()) {
-            try {
-                String uploadDirectory = "uploads/rentals/";
-                Path path = Paths.get(uploadDirectory).toAbsolutePath();
-
-                if (!Files.exists(path)) {
-                    Files.createDirectories(path);
-                }
-
-                String fileExtension = getFileExtension(file.getOriginalFilename());
-                String uniqueFileName = UUID.randomUUID() + "." + fileExtension;
-                Path filePath = path.resolve(uniqueFileName);
-
-                file.transferTo(filePath.toFile());
-                String relativePath = uploadDirectory + uniqueFileName;
-
-                existingRental.setPicture(relativePath); // Mettre à jour avec le nouveau chemin
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to store file", e);
-            }
-        }
-
-        // Sauvegarder le rental mis à jour
         Rentals updatedRental = rentalRepository.save(existingRental);
 
-        return new Rentals();
-        // Retourner un RentalDTO
-      /*  return new RentalDTO(
-                updatedRental.getId(),
-                updatedRental.getName(),
-                updatedRental.getSurface(),
-                updatedRental.getPrice(),
-                updatedRental.getPicture(),
-                updatedRental.getDescription(),
-                updatedRental.getOwner().getId(),
-                updatedRental.getCreatedAt(),
-                updatedRental.getUpdatedAt()
-        );*/
+        return rentalsMapper.toResponseDTO(updatedRental);
     }
+
 }

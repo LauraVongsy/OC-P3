@@ -2,6 +2,10 @@ package com.chatop.configuration;
 
 import com.chatop.filter.JwtFilter;
 import com.chatop.services.UserService;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +30,13 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 @Configuration
 @EnableWebSecurity
 @CrossOrigin
+@OpenAPIDefinition(info = @Info(title = "ChâTop API", version = "V1")) // Defines OpenAPI information for Swagger UI
+@SecurityScheme(
+        name = "Bearer Authentication",
+        type = SecuritySchemeType.HTTP,
+        bearerFormat = "JWT",
+        scheme = "bearer"
+)
 public class SpringSecurityConfig {
 
     @Autowired
@@ -50,7 +61,7 @@ public class SpringSecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 //Set the public and authentication routes
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/register", "/api/auth/login", "/uploads/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/api/auth/register", "/api/auth/login", "/uploads/**", "/v2/api-docs", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated())
                 //Set session management to stateless (the server doesn't keep a session in between requests because we use jwt)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

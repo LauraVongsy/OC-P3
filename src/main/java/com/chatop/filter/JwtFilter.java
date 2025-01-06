@@ -48,7 +48,6 @@ public class JwtFilter extends OncePerRequestFilter {
             token = authHeader.substring(7);
             userName = jwtService.extractUserName(token);
         }
-
         //If username is extracted from token and there is no authentication in the current SecurityContext
         if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             //Loading UserDetails by username extracted from the token
@@ -57,7 +56,7 @@ public class JwtFilter extends OncePerRequestFilter {
             //Validates the token with loaded UserDetails
             if (jwtService.validateToken(token, userDetails)) {
                 //Creates an authentication token using UserDetails
-                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, token, userDetails.getAuthorities());
                 //Setting authentication details
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 //Setting the authentication token in the SecurityContext
