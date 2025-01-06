@@ -1,9 +1,16 @@
 package com.chatop.models;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "USERS", indexes = {@Index(name = "USERS_index", columnList = "email", unique = true)})
 public class Users {
@@ -21,11 +28,11 @@ public class Users {
     @Column(nullable = false, length = 255)
     private String password;
 
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    @Column(nullable = false)
+    private LocalDateTime created_at;
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @Column()
+    private LocalDateTime updated_at;
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Rentals> rentals;
@@ -35,43 +42,7 @@ public class Users {
 
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
-    }
-
-    // Constructeur sans argument requis par JPA
-    public Users() {}
-
-    // Getters et Setters
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+        created_at = LocalDateTime.now();
     }
 
 
