@@ -49,6 +49,16 @@ public class RentalService {
         return rentalsMapper.toResponseDTO(rental);
     }
 
+    /**
+     * Creates a new rental and saves it to the database
+     * If the file is not empty, it saves the file to the uploads/rentals directory
+     * If the user is not found, it throws a NotFoundException
+     * If the file cannot be saved, it throws a RuntimeException
+     *
+     * @param rentalRequestDTO
+     * @param file
+     * @return RentalResponseDTO
+     */
     public RentalResponseDTO createRental(RentalRequestDTO rentalRequestDTO, MultipartFile file) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String token = (String) authentication.getCredentials();
@@ -62,13 +72,12 @@ public class RentalService {
 
         if (file != null && !file.isEmpty()) {
             try {
-                // Define the storage path under resources/static/uploads/rentals
                 Path directoryPath = Paths.get("src/main/resources/static/uploads/rentals");
                 if (!Files.exists(directoryPath)) {
                     Files.createDirectories(directoryPath); // Create the directory if it doesn't exist
                 }
 
-                // Generate a unique file name for the uploaded file
+                // Generates a unique file name for the uploaded file
                 String imageFileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
                 Path imagePath = directoryPath.resolve(imageFileName);
 
@@ -92,16 +101,20 @@ public class RentalService {
         return (dotIndex > 0) ? fileName.substring(dotIndex + 1) : "";
     }
 
+    /**
+     * Updates a rental in the database with the given id
+     * If the rental is not found, it throws a NotFoundException
+     * If the user is not allowed to modify the rental, it throws an UnauthorizedException
+     *
+     * @param id
+     * @param rentalRequestDTO
+     * @return RentalResponseDTO
+     */
     public RentalResponseDTO updateRental(Integer id, RentalRequestDTO rentalRequestDTO) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println("Authentication  : " + authentication);
-
         String token = (String) authentication.getCredentials();
-        System.out.println("Token extrait du contexte de sécurité : " + token);
         Integer userId = this.jwtService.extractUserId(token);
-        System.out.println("ID utilisateur extrait : " + userId);
-
         Rentals existingRental = rentalRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Rental with id " + id + " not found"));
 

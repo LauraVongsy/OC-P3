@@ -16,6 +16,12 @@ public class MessageService {
     @Autowired
     MessagesMapper messagesMapper;
 
+    /**
+     * Creates a new message and saves it to the database
+     *
+     * @param messageRequestDTO
+     * @return MessageResponseDTO
+     */
     public MessageResponseDTO createMessage(MessageRequestDTO messageRequestDTO) {
 
         Message message = messagesMapper.toEntity(messageRequestDTO);
