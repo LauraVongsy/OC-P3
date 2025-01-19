@@ -58,4 +58,10 @@ Une fois le projet lancé, accédez à :
 
 http://localhost:8080/swagger-ui.html
 
+## Création de la base de données
+
+Le script sql pour créer la base de données se trouve dans: ressources/sql/script.sql
+
+
+
 
