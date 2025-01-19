@@ -38,6 +38,8 @@ Le projet intègre les fonctionnalités suivantes :
    cd chatop
 
 2. Configurez la base de données dans le fichier application.properties:
+   Il est fortement conseillé de stocker les informations de connexion à la base de données dans des variables
+   d'environnement.
 
 spring.datasource.url=jdbc:mysql://localhost:3306/chatop
 spring.datasource.username=your_username
@@ -56,7 +58,7 @@ spring.datasource.password=your_password
 Une documentation interactive de l'API est disponible avec OpenAPI.
 Une fois le projet lancé, accédez à :
 
-http://localhost:8080/swagger-ui.html
+http://localhost:3001/swagger-ui/index.html
 
 ## Création de la base de données
 
