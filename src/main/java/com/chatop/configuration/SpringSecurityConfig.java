@@ -75,6 +75,10 @@ public class SpringSecurityConfig {
     /**
      * Creates a DaoAuthenticationProvider to handle user authentication
      * DaoAuthenticationProvider provides authentication based on a database containing users infos
+     * and a UserDetailsService to retrieve user information
+     * the password encoder is used to encode the password before comparing it with the one stored in the database
+     *
+     * @return DaoAuthenticationProvider
      */
     @Bean
     public AuthenticationProvider authenticationProvider() {

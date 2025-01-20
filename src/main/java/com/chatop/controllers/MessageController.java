@@ -33,7 +33,7 @@ public class MessageController {
                     responseCode = "201",
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = ApiResponse.class),
-                            examples = @ExampleObject(value = "{\"message\":\"Message envoyé avec succès\"}"))})})
+                            examples = @ExampleObject(value = "{\"message\":\"Message sent with success\"}"))})})
     public ResponseEntity<Map<String, String>> createMessage(@RequestBody MessageRequestDTO messageRequestDTO) {
         MessageResponseDTO messageResponseDTO = this.messageService.createMessage(messageRequestDTO);
         if (messageResponseDTO != null) {
